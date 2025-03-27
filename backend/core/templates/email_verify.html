@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        .container { max-width: 600px; margin: 0 auto; padding: 20px; font-family: Arial, sans-serif; }
+        .header { color: #3b82f6; text-align: center; }
+        .button { 
+            background-color: #3b82f6; 
+            color: white; 
+            padding: 12px 24px; 
+            text-decoration: none; 
+            border-radius: 8px; 
+            display: inline-block;
+            margin: 20px 0;
+        }
+        .footer { margin-top: 30px; text-align: center; color: #666; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="header">Welcome to ErrandHub!</h1>
+        
+        <p>Hello {{ user_full_name }},</p>
+        
+        <p>Please verify your email address to activate your ErrandHub account:</p>
+        
+        <div style="text-align: center;">
+            <a href="{{ verification_url }}" class="button">
+                Verify Email Address
+            </a>
+        </div>
+
+        <p>Or copy this link to your browser:</p>
+        <p style="word-break: break-all;">{{ verification_url }}</p>
+
+        <div class="footer">
+            <p>If you didn't create an account, you can safely ignore this email.</p>
+            <p>Need help? Contact us at {{ support_email }}</p>
+        </div>
+    </div>
+</body>
+</html>

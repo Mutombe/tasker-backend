@@ -5,11 +5,13 @@ from .models import User, Application, Task
 class AdminUserOverview(admin.ModelAdmin):
     list_display = (
         "id",
+        "username",
         "is_student",
         "is_resident",
         "phone",
     )
     search_fields = ("username",)
+
 
 class AdminTaskOverview(admin.ModelAdmin):
     list_display = (
@@ -19,6 +21,7 @@ class AdminTaskOverview(admin.ModelAdmin):
     )
     search_fields = ("title",)
 
+
 class AdminApplicationOverview(admin.ModelAdmin):
     list_display = (
         "id",
@@ -27,6 +30,7 @@ class AdminApplicationOverview(admin.ModelAdmin):
         "status",
     )
     search_fields = ("task",)
+
 
 admin.site.register(User, AdminUserOverview)
 admin.site.register(Task, AdminTaskOverview)
