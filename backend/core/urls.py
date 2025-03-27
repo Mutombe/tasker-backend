@@ -18,7 +18,6 @@ urlpatterns = [
     path("", include(router.urls)),
     path("auth/register/", RegisterView.as_view(), name="register"),
     path("auth/login/", CustomTokenObtainPairView.as_view()),
-    #path("auth/login/", TokenObtainPairView.as_view()),
     path("auth/refresh/", TokenRefreshView.as_view()),
 
     path(
