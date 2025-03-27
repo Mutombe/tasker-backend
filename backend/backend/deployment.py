@@ -5,7 +5,7 @@ from .settings import BASE_DIR
 # SECURITY SETTINGS
 ALLOWED_HOSTS = [
     os.environ.get('RENDER_EXTERNAL_HOSTNAME'),
-    'silver-carbon-backend.com',
+    'taskoba-backend.onrender.com',
     'errandx.onrender.com',
 ]
 
@@ -51,7 +51,7 @@ CORS_EXPOSE_HEADERS = [
 
 CSRF_TRUSTED_ORIGINS = [
     'https://errandx.onrender.com',
-    'https://silver-carbon-backend.onrender.com',
+    'https://taskoba-backend.onrender.com'
 ]
 
 # MIDDLEWARE CONFIGURATION
