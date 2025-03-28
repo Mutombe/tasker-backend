@@ -25,12 +25,14 @@ from rest_framework import status
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from .serializers import UserSerializer
+import logging
 
+logger = logging.getLogger(__name__)
 class RegisterView(APIView):
     def post(self, request):
         serializer = UserSerializer(data=request.data)
         if serializer.is_valid():
-            user = serializer.save(is_active=False)
+            user = serializer.save(is_active=True)
 
             uid = urlsafe_base64_encode(force_bytes(user.pk))
             token = default_token_generator.make_token(user)
@@ -123,18 +125,46 @@ class ResendVerificationView(APIView):
             )
 
 class TaskViewSet(viewsets.ModelViewSet):
+
     queryset = Task.objects.all()
-    permission_classes = [IsTaskOwnerOrReadOnly | permissions.IsAdminUser]
+    permission_classes = [IsAuthenticated]
 
     def get_serializer_class(self):
         if self.action == "retrieve":
             return TaskDetailSerializer
         return TaskSerializer
 
+    #def perform_create(self, serializer):
+     #   serializer.save(tasker=self.request.user)
+
     def perform_create(self, serializer):
-        if not self.request.user.is_resident:
-            raise PermissionDenied("Only residents can post tasks.")
-        serializer.save(resident=self.request.user)
+        user = self.request.user
+        logger.error(f"User in request: {user}")
+        logger.error(f"User is authenticated: {user.is_authenticated}")
+        
+        if not user.is_authenticated:
+            logger.error("Attempt to create task with unauthenticated user")
+            raise ValueError("Authentication required to create a task")
+        
+        serializer.save(tasker=user)
+
+    def destroy(self, request, *args, **kwargs):
+        task = self.get_object()
+        if task.has_accepted_applicants:
+            return Response(
+                {"detail": "Cannot delete task with accepted applicants."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        return super().destroy(request, *args, **kwargs)
+    
+    def update(self, request, *args, **kwargs):
+        task = self.get_object()
+        if task.has_accepted_applicants:
+            return Response(
+                {"detail": "Cannot update task with accepted applicants."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        return super().update(request, *args, **kwargs)
 
 
 class ApplicationViewSet(viewsets.ModelViewSet):
@@ -150,7 +180,7 @@ class ApplicationViewSet(viewsets.ModelViewSet):
     @action(detail=True, methods=["patch"], permission_classes=[IsResident])
     def accept(self, request, pk=None):
         application = self.get_object()
-        if application.task.resident != request.user:
+        if application.task.tasker != request.user:
             raise PermissionDenied("Only task owner can accept applications.")
         application.status = "accepted"
         application.save()

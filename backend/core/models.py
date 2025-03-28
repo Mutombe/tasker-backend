@@ -2,11 +2,9 @@ from django.contrib.auth.models import AbstractUser
 from django.db import models
 
 class User(AbstractUser):
-    is_student = models.BooleanField(default=True)
-    is_resident = models.BooleanField(default=False)
     phone = models.CharField(max_length=15, blank=True)
 
-    # Add related_name arguments to resolve accessor conflicts
+    # related_name arguments to resolve accessor conflicts
     groups = models.ManyToManyField(
         "auth.Group",
         verbose_name="groups",
@@ -36,7 +34,7 @@ class Task(models.Model):
         ("completed", "Completed"),
         ("canceled", "Canceled"),
     ]
-    resident = models.ForeignKey(User, on_delete=models.CASCADE, related_name="tasks")
+    tasker = models.ForeignKey(User, on_delete=models.CASCADE, related_name="tasks")
     title = models.CharField(max_length=200)
     description = models.TextField()
     address = models.CharField(max_length=200)
@@ -45,7 +43,12 @@ class Task(models.Model):
     budget = models.DecimalField(max_digits=8, decimal_places=2)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default="open")
     urgent = models.BooleanField(default=False)
+    deadline = models.DateTimeField(blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
+
+    @property
+    def has_accepted_applicants(self):
+        return self.applications.filter(status='accepted').exists()
 
     def __str__(self):
         return self.title
@@ -60,17 +63,17 @@ class Application(models.Model):
     task = models.ForeignKey(
         Task, on_delete=models.CASCADE, related_name="applications"
     )
-    student = models.ForeignKey(
+    applicant = models.ForeignKey(
         User, on_delete=models.CASCADE, related_name="applications"
     )
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default="pending")
     applied_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f"{self.task.title} - {self.student.username}"
+        return f"{self.task.title} - {self.applicant.username}"
 
     class Meta:
-        unique_together = ("task", "student")
+        unique_together = ("task", "applicant")
 
     def save(self, *args, **kwargs):
         if self.status == "accepted":
@@ -87,7 +90,7 @@ class Application(models.Model):
 
 class Review(models.Model):
     task = models.ForeignKey(Task, on_delete=models.CASCADE, related_name="reviews")
-    student = models.ForeignKey(User, on_delete=models.CASCADE, related_name="reviews")
+    worker = models.ForeignKey(User, on_delete=models.CASCADE, related_name="reviews")
     rating = models.IntegerField()
     comment = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)

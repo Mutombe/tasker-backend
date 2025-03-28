@@ -17,6 +17,6 @@ class IsTaskOwnerOrReadOnly(permissions.BasePermission):
             return True
         return (
             request.user.is_authenticated
-            and obj.resident == request.user
+            and obj.tasker == request.user
             and obj.status == "open"
         )

@@ -6,8 +6,7 @@ class AdminUserOverview(admin.ModelAdmin):
     list_display = (
         "id",
         "username",
-        "is_student",
-        "is_resident",
+        "email",
         "phone",
     )
     search_fields = ("username",)
@@ -17,7 +16,7 @@ class AdminTaskOverview(admin.ModelAdmin):
     list_display = (
         "title",
         "address",
-        "resident",
+        "tasker",
     )
     search_fields = ("title",)
 
@@ -26,7 +25,7 @@ class AdminApplicationOverview(admin.ModelAdmin):
     list_display = (
         "id",
         "task",
-        "student",
+        "applicant",
         "status",
     )
     search_fields = ("task",)

@@ -7,7 +7,7 @@ from .models import Task
 @receiver(pre_save, sender=Task)
 def geocode_address(sender, instance, **kwargs):
     if instance.address and (not instance.latitude or not instance.longitude):
-        geolocator = Nominatim(user_agent="errandconnect")
+        geolocator = Nominatim(user_agent="taskoba")
         location = geolocator.geocode(instance.address)
         if location:
             instance.latitude = location.latitude
